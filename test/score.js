@@ -6,7 +6,7 @@ const fuzzyMatch = require('../lib/score').default;
 require('./original');
 
 describe('String score', () => {
-    const score = (abbr, string, factor) => fuzzyMatch(abbr, string, factor).score;
+    const score = (abbr, string, factor) => fuzzyMatch(abbr, string, factor);
 
     describe('Original samples', () => {
         it('exact match', () => {
