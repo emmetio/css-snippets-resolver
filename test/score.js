@@ -2,12 +2,9 @@
 
 const assert = require('assert');
 require('babel-register');
-const fuzzyMatch = require('../lib/score').default;
-require('./original');
+const score = require('../lib/score').default;
 
 describe('String score', () => {
-    const score = (abbr, string, factor) => fuzzyMatch(abbr, string, factor);
-
     describe('Original samples', () => {
         it('exact match', () => {
             assert.equal(score('Hello World', 'Hello World'), 1);
