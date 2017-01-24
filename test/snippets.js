@@ -58,4 +58,10 @@ describe('CSS snippets', () => {
 
         assert.deepEqual(snippets.bgpy.keywords(), []);
     });
+
+    it('default value', () => {
+        assert.equal(snippets.bg.defaulValue, '#${1:000}');
+        assert.equal(snippets.bga.defaulValue, 'fixed');
+        assert.equal(snippets.bgpy.defaulValue, null);
+    });
 });
