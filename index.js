@@ -3,8 +3,15 @@
 import stringScore from './lib/score';
 import cssSnippets from './lib/snippets';
 
-const globalKeywords = ['auto', 'inherit'];
 const fuzziness = 1;
+const globalKeywords = ['auto', 'inherit'];
+const unitlessProperties = ['z-index', 'line-height', 'opacity', 'font-weight', 'zoom'];
+const unitAliases = {
+    e :'em',
+    p: '%',
+    x: 'ex',
+    r: 'rem'
+};
 
 /**
  * For every node in given `tree`, finds matching snippet from `registry` and
@@ -61,7 +68,7 @@ function resolveAsProperty(node, snippet) {
                 // no matching value, try to get default one
                 kw = snippet.defaulValue;
                 if (kw && kw.indexOf('${') === -1) {
-                    // quick and dirty test for existing field. If not, wrap
+                    // Quick and dirty test for existing field. If not, wrap
                     // default value in a field
                     kw = `\${1:${kw}}`;
                 }
@@ -72,12 +79,15 @@ function resolveAsProperty(node, snippet) {
 			}
 		} else {
 			// replace keyword aliases in current node value
-            const allKeywords = keywords.concat(globalKeywords);
 			for (let i = 0, v; i < node.value.value.length; i++) {
 				v = node.value.value[i];
 				if (isKeyword(v)) {
-					node.value.value[i] = findBestMatch(v, allKeywords) || v;
-				}
+					v = findBestMatch(v, keywords) || findBestMatch(v, globalKeywords) || v;
+				} else if (isNumericValue(v)) {
+                    v = resolveNumericValue(node.name, v);
+                }
+
+                node.value.value[i] = v;
 			}
 		}
 	}
@@ -156,4 +166,31 @@ function getUnmatchedPart(abbr, string) {
  */
 function isKeyword(str) {
 	return str && typeof str === 'string' && /^[\w\-]+$/.test(str);
+}
+
+/**
+ * Check if given object is a numeric value object
+ * @param  {*}  obj
+ * @return {Boolean}
+ */
+function isNumericValue(obj) {
+    return obj && typeof obj === 'object' && 'unit' in obj;
+}
+
+/**
+ * Resolves numeric value for given CSS property
+ * @param  {String} property    CSS property name
+ * @param  {NumericValue} value CSS numeric value token
+ * @return {NumericValue}
+ */
+function resolveNumericValue(property, value) {
+    if (value.unit) {
+        value.unit = unitAliases[value.unit] || value.unit;
+    } else if (value.value !== 0 && unitlessProperties.indexOf(property) === -1) {
+        // use `px` for integers, `em` for floats
+        // NB: num|0 is a quick alternative to Math.round(0)
+        value.unit = value.value === (value.value|0) ? 'px' : 'em';
+    }
+
+    return value;
 }

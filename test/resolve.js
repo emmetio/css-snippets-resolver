@@ -18,6 +18,8 @@ registry.add({
     "cl": "clear:both|left|right|none",
     "pos": "position:relative|absolute|relative|fixed|static",
     "m": "margin",
+    "p": "padding",
+    "z": "z-index:1",
     "bd": "border:${1:1px} ${2:solid} ${3:#000}",
     "bds": "border-style:hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset"
 });
@@ -45,11 +47,12 @@ function stringify(tree) {
 }
 
 describe('CSS resolver', () => {
-	it('resolve', () => {
+	it('keywords', () => {
         assert.equal(expand('pos'), 'position: ${1:relative};');
         assert.equal(expand('poa'), 'position: absolute;');
         assert.equal(expand('por'), 'position: relative;');
         assert.equal(expand('pof'), 'position: fixed;');
+        assert.equal(expand('pos-a'), 'position: absolute;');
 
         assert.equal(expand('m'), 'margin;');
         assert.equal(expand('m0'), 'margin: 0;');
@@ -61,9 +64,16 @@ describe('CSS resolver', () => {
         assert.equal(expand('bg'), 'background: #${1:000};');
 
         assert.equal(expand('bd'), 'border: ${1:1px} ${2:solid} ${3:#000};');
-        assert.equal(expand('bd-a'), 'border: auto;');
-        assert.equal(expand('bd3-s#fc0'), 'border: 3 solid #ffcc00;');
-        assert.equal(expand('bd3-dd#fc0'), 'border: 3 dot-dash #ffcc00;');
-        assert.equal(expand('bd3-h#fc0'), 'border: 3 hidden #ffcc00;');
+        assert.equal(expand('bd0-s#fc0'), 'border: 0 solid #ffcc00;');
+        assert.equal(expand('bd0-dd#fc0'), 'border: 0 dot-dash #ffcc00;');
+        assert.equal(expand('bd0-h#fc0'), 'border: 0 hidden #ffcc00;');
+	});
+
+    it('numeric', () => {
+        assert.equal(expand('p0'), 'padding: 0;', 'No unit for 0');
+        assert.equal(expand('p10'), 'padding: 10px;', '`px` unit for integers');
+        assert.equal(expand('p.4'), 'padding: 0.4em;', '`em` for floats');
+        assert.equal(expand('p10p'), 'padding: 10%;', 'unit alias');
+        assert.equal(expand('z10'), 'z-index: 10;', 'Initless property');
 	});
 });
