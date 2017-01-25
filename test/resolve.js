@@ -5,6 +5,7 @@ const parse = require('@emmetio/css-abbreviation');
 const SnippetsRegistry = require('@emmetio/snippets-registry');
 require('babel-register');
 const resolve = require('../index').default;
+const stringScore = require('../lib/score').default;
 
 const registry = new SnippetsRegistry();
 registry.add({
@@ -60,7 +61,9 @@ describe('CSS resolver', () => {
         assert.equal(expand('bg'), 'background: #${1:000};');
 
         assert.equal(expand('bd'), 'border: ${1:1px} ${2:solid} ${3:#000};');
+        assert.equal(expand('bd-a'), 'border: auto;');
         assert.equal(expand('bd3-s#fc0'), 'border: 3 solid #ffcc00;');
         assert.equal(expand('bd3-dd#fc0'), 'border: 3 dot-dash #ffcc00;');
+        assert.equal(expand('bd3-h#fc0'), 'border: 3 hidden #ffcc00;');
 	});
 });

@@ -61,7 +61,7 @@ function resolveAsProperty(node, snippet) {
                 // no matching value, try to get default one
                 kw = snippet.defaulValue;
                 if (kw && kw.indexOf('${') === -1) {
-                    // quick and dirty tast for existing field. If not, wrap
+                    // quick and dirty test for existing field. If not, wrap
                     // default value in a field
                     kw = `\${1:${kw}}`;
                 }
@@ -72,10 +72,11 @@ function resolveAsProperty(node, snippet) {
 			}
 		} else {
 			// replace keyword aliases in current node value
+            const allKeywords = keywords.concat(globalKeywords);
 			for (let i = 0, v; i < node.value.value.length; i++) {
 				v = node.value.value[i];
 				if (isKeyword(v)) {
-					node.value.value[i] = findBestMatch(v, keywords) || findBestMatch(v, globalKeywords) || v;
+					node.value.value[i] = findBestMatch(v, allKeywords) || v;
 				}
 			}
 		}
