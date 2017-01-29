@@ -38,7 +38,8 @@ function resolveNode(node, snippets) {
 	const snippet = findBestMatch(node.name, snippets, 'key');
 
 	if (!snippet) {
-		return node;
+		// Edge case: `!important` snippet
+		return node.name === '!' ? setNodeAsText(node, '!important') : node;
 	}
 
 	return snippet.property
@@ -47,7 +48,7 @@ function resolveNode(node, snippets) {
 }
 
 /**
- * Resolves given node as CSS propery
+ * Resolves given parsed abbreviation node as CSS propery
  * @param {Node} node
  * @param {CSSSnippet} snippet
  * @return {Node}
@@ -79,15 +80,20 @@ function resolveAsProperty(node, snippet) {
 			}
 		} else {
 			// replace keyword aliases in current node value
-			for (let i = 0, v; i < node.value.value.length; i++) {
-				v = node.value.value[i];
-				if (isKeyword(v)) {
-					v = findBestMatch(v, keywords) || findBestMatch(v, globalKeywords) || v;
-				} else if (isNumericValue(v)) {
-                    v = resolveNumericValue(node.name, v);
+			for (let i = 0, token; i < node.value.value.length; i++) {
+				token = node.value.value[i];
+
+				if (token === '!') {
+					token = `${!i ? '${1} ' : ''}!important`;
+				} else if (isKeyword(token)) {
+					token = findBestMatch(token.value, keywords)
+						|| findBestMatch(token.value, globalKeywords)
+						|| token;
+				} else if (isNumericValue(token)) {
+                    token = resolveNumericValue(node.name, token);
                 }
 
-                node.value.value[i] = v;
+                node.value.value[i] = token;
 			}
 		}
 	}
@@ -96,14 +102,24 @@ function resolveAsProperty(node, snippet) {
 }
 
 /**
- * Resolves given node as a snippet: a plain code chunk
+ * Resolves given parsed abbreviation node as a snippet: a plain code chunk
  * @param {Node} node
  * @param {CSSSnippet} snippet
  * @return {Node}
  */
 function resolveAsSnippet(node, snippet) {
+	return setNodeAsText(node, snippet.value);
+}
+
+/**
+ * Sets given parsed abbreviation node as a text snippet
+ * @param {Node} node
+ * @param {String} text
+ * @return {Node}
+ */
+function setNodeAsText(node, text) {
 	node.name = null;
-	node.value = snippet.value;
+	node.value = text;
 	return node;
 }
 
@@ -160,37 +176,41 @@ function getUnmatchedPart(abbr, string) {
 }
 
 /**
- * Check if given string is a keyword
- * @param {String} str
+ * Check if given CSS value token is a keyword
+ * @param {*} token
  * @return {Boolean}
  */
-function isKeyword(str) {
-	return str && typeof str === 'string' && /^[\w\-]+$/.test(str);
+function isKeyword(token) {
+	return tokenTypeOf(token, 'keyword');
 }
 
 /**
- * Check if given object is a numeric value object
- * @param  {*}  obj
+ * Check if given CSS value token is a numeric value
+ * @param  {*}  token
  * @return {Boolean}
  */
-function isNumericValue(obj) {
-    return obj && typeof obj === 'object' && 'unit' in obj;
+function isNumericValue(token) {
+    return tokenTypeOf(token, 'numeric');
+}
+
+function tokenTypeOf(token, type) {
+	return token && typeof token === 'object' && token.type === type;
 }
 
 /**
  * Resolves numeric value for given CSS property
  * @param  {String} property    CSS property name
- * @param  {NumericValue} value CSS numeric value token
+ * @param  {NumericValue} token CSS numeric value token
  * @return {NumericValue}
  */
-function resolveNumericValue(property, value) {
-    if (value.unit) {
-        value.unit = unitAliases[value.unit] || value.unit;
-    } else if (value.value !== 0 && unitlessProperties.indexOf(property) === -1) {
+function resolveNumericValue(property, token) {
+    if (token.unit) {
+        token.unit = unitAliases[token.unit] || token.unit;
+    } else if (token.value !== 0 && unitlessProperties.indexOf(property) === -1) {
         // use `px` for integers, `em` for floats
         // NB: num|0 is a quick alternative to Math.round(0)
-        value.unit = value.value === (value.value|0) ? 'px' : 'em';
+        token.unit = token.value === (token.value|0) ? 'px' : 'em';
     }
 
-    return value;
+    return token;
 }

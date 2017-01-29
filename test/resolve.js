@@ -33,6 +33,10 @@ function stringify(tree) {
     .map(node => {
         let prop = node.name;
 
+		if (prop == null) {
+			return String(node.value);
+		}
+
         if (node.attributes.length) {
             prop += `(${node.attributes.map(attr => `${attr.name} => ${attr.value}`).join(', ')})`;
         }
@@ -76,4 +80,10 @@ describe('CSS resolver', () => {
         assert.equal(expand('p10p'), 'padding: 10%;', 'unit alias');
         assert.equal(expand('z10'), 'z-index: 10;', 'Initless property');
 	});
+
+    it('important', () => {
+        assert.equal(expand('!'), '!important');
+        assert.equal(expand('p!'), 'padding: ${1} !important;');
+        assert.equal(expand('p0!'), 'padding: 0 !important;');
+    });
 });
