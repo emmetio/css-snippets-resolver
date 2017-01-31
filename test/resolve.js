@@ -16,12 +16,14 @@ registry.add({
     "bgo": "background-origin:padding-box|border-box|content-box",
     "c": "color:#${1:000}",
     "cl": "clear:both|left|right|none",
+    "p": "padding",
     "pos": "position:relative|absolute|relative|fixed|static",
     "m": "margin",
-    "p": "padding",
     "z": "z-index:1",
     "bd": "border:${1:1px} ${2:solid} ${3:#000}",
-    "bds": "border-style:hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset"
+    "bds": "border-style:hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset",
+    "fl": "float:left|right|none",
+    "fef": "font-effect:none|engrave|emboss|outline"
 });
 
 function expand(abbr) {
@@ -52,6 +54,9 @@ function stringify(tree) {
 
 describe('CSS resolver', () => {
 	it('keywords', () => {
+        assert.equal(expand('fl'), 'float: ${1:left};');
+        assert.equal(expand('fll'), 'float: left;');
+
         assert.equal(expand('pos'), 'position: ${1:relative};');
         assert.equal(expand('poa'), 'position: absolute;');
         assert.equal(expand('por'), 'position: relative;');
@@ -78,7 +83,7 @@ describe('CSS resolver', () => {
         assert.equal(expand('p10'), 'padding: 10px;', '`px` unit for integers');
         assert.equal(expand('p.4'), 'padding: 0.4em;', '`em` for floats');
         assert.equal(expand('p10p'), 'padding: 10%;', 'unit alias');
-        assert.equal(expand('z10'), 'z-index: 10;', 'Initless property');
+        assert.equal(expand('z10'), 'z-index: 10;', 'Unitless property');
 	});
 
     it('important', () => {

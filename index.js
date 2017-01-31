@@ -3,7 +3,6 @@
 import stringScore from './lib/score';
 import cssSnippets from './lib/snippets';
 
-const fuzziness = 1;
 const globalKeywords = ['auto', 'inherit'];
 const unitlessProperties = ['z-index', 'line-height', 'opacity', 'font-weight', 'zoom'];
 const unitAliases = {
@@ -127,7 +126,8 @@ function setNodeAsText(node, text) {
  * Finds best matching item from `items` array
  * @param {String} abbr  Abbreviation to match
  * @param {Array}  items List of items for match
- * @param {String} [key] If `items` is a list of objects, use `key` as object property to test against
+ * @param {String} [key] If `items` is a list of objects, use `key` as object
+ * property to test against
  * @return {*}
  */
 function findBestMatch(abbr, items, key) {
@@ -140,7 +140,7 @@ function findBestMatch(abbr, items, key) {
 
 	for (let i = 0, item; i < items.length; i++) {
 		item = items[i];
-		const score = stringScore(abbr, item && typeof item === 'object' ? item[key] : item, fuzziness);
+		const score = stringScore(abbr, item && typeof item === 'object' ? item[key] : item);
 
 		if (score === 1) {
 			// direct hit, no need to look further
@@ -170,6 +170,7 @@ function getUnmatchedPart(abbr, string) {
 		if (lastPos === -1) {
 			return abbr.slice(i);
 		}
+        lastPos++;
 	}
 
 	return '';
