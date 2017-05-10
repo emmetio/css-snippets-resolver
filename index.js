@@ -3,8 +3,11 @@
 import stringScore from './lib/score';
 import cssSnippets from './lib/snippets';
 
-const globalKeywords = ['auto', 'inherit'];
-const unitlessProperties = ['z-index', 'line-height', 'opacity', 'font-weight', 'zoom'];
+const globalKeywords = ['auto', 'inherit', 'unset'];
+const unitlessProperties = [
+    'z-index', 'line-height', 'opacity', 'font-weight', 'zoom',
+    'flex', 'flex-grow', 'flex-shrink'
+];
 const unitAliases = {
     e :'em',
     p: '%',
