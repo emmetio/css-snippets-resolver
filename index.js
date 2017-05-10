@@ -150,7 +150,7 @@ function findBestMatch(abbr, items, key) {
 			return item;
 		}
 
-		if (score > maxScore) {
+		if (score && score >= maxScore) {
 			maxScore = score;
 			matchedItem = item;
 		}

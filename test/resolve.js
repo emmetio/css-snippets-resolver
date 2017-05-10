@@ -22,6 +22,7 @@ registry.add({
     "m": "margin",
     "z": "z-index:1",
     "bd": "border:${1:1px} ${2:solid} ${3:#000}",
+    "bdf": "border-fit:scale",
     "bds": "border-style:hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset",
     "bxsh": "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color}|none",
 	"bxsz": "box-sizing:border-box|content-box|border-box",
@@ -57,6 +58,7 @@ function stringify(tree) {
 
 describe('CSS resolver', () => {
 	it('keywords', () => {
+        assert.equal(expand('bd1-s'), 'border: 1px solid;');
         assert.equal(expand('dib'), 'display: inline-block;');
         assert.equal(expand('bxsz'), 'box-sizing: ${1:border-box};');
         assert.equal(expand('bxz'), 'box-sizing: ${1:border-box};');
