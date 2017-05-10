@@ -65,7 +65,7 @@ function resolveAsProperty(node, snippet) {
 
 		if (!node.value.size) {
 			// no value defined, try to resolve unmatched part as a keyword alias
-			let kw = findBestMatch(getUnmatchedPart(abbr, node.name), keywords);
+			let kw = findBestMatch(getUnmatchedPart(abbr, snippet.key), keywords);
 
             if (!kw) {
                 // no matching value, try to get default one

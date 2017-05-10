@@ -16,12 +16,15 @@ registry.add({
     "bgo": "background-origin:padding-box|border-box|content-box",
     "c": "color:#${1:000}",
     "cl": "clear:both|left|right|none",
+    "d": "display:block|none|flex|inline-flex|inline|inline-block|list-item|run-in|compact|table|inline-table|table-caption|table-column|table-column-group|table-header-group|table-footer-group|table-row|table-row-group|table-cell|ruby|ruby-base|ruby-base-group|ruby-text|ruby-text-group",
     "p": "padding",
     "pos": "position:relative|absolute|relative|fixed|static",
     "m": "margin",
     "z": "z-index:1",
     "bd": "border:${1:1px} ${2:solid} ${3:#000}",
     "bds": "border-style:hidden|dotted|dashed|solid|double|dot-dash|dot-dot-dash|wave|groove|ridge|inset|outset",
+    "bxsh": "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color}|none",
+	"bxsz": "box-sizing:border-box|content-box|border-box",
     "fl": "float:left|right|none",
     "fef": "font-effect:none|engrave|emboss|outline"
 });
@@ -54,6 +57,10 @@ function stringify(tree) {
 
 describe('CSS resolver', () => {
 	it('keywords', () => {
+        assert.equal(expand('dib'), 'display: inline-block;');
+        assert.equal(expand('bxsz'), 'box-sizing: ${1:border-box};');
+        assert.equal(expand('bxz'), 'box-sizing: ${1:border-box};');
+        assert.equal(expand('bxzc'), 'box-sizing: content-box;');
         assert.equal(expand('fl'), 'float: ${1:left};');
         assert.equal(expand('fll'), 'float: left;');
 
