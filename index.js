@@ -167,8 +167,8 @@ function findBestMatch(abbr, items, key) {
 
 function getScoringPart(item, key) {
     const value = item && typeof item === 'object' ? item[key] : item;
-    const m = (value || '').match(/^[\w-]+/);
-    return m ? m[0] : '';
+    const m = (value || '').match(/^[\w-@]+/);
+    return m ? m[0] : value;
 }
 
 /**
