@@ -149,7 +149,7 @@ function findBestMatch(abbr, items, key) {
 
 	for (let i = 0, item; i < items.length; i++) {
 		item = items[i];
-		const score = stringScore(abbr, item && typeof item === 'object' ? item[key] : item);
+		const score = stringScore(abbr, getScoringPart(item, key));
 
 		if (score === 1) {
 			// direct hit, no need to look further
@@ -163,6 +163,12 @@ function findBestMatch(abbr, items, key) {
 	}
 
 	return matchedItem;
+}
+
+function getScoringPart(item, key) {
+    const value = item && typeof item === 'object' ? item[key] : item;
+    const m = (value || '').match(/^[\w-]+/);
+    return m ? m[0] : '';
 }
 
 /**

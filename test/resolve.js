@@ -27,7 +27,8 @@ registry.add({
     "bxsh": "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color}|none",
 	"bxsz": "box-sizing:border-box|content-box|border-box",
     "fl": "float:left|right|none",
-    "fef": "font-effect:none|engrave|emboss|outline"
+    "fef": "font-effect:none|engrave|emboss|outline",
+    "trf": "transform:${1}|skewX(${1:angle})|skewY(${1:angle})|scale(${1:x}, ${2:y})|scaleX(${1:x})|scaleY(${1:y})|scaleZ(${1:z})|scale3d(${1:x}, ${2:y}, ${3:z})|rotate(${1:angle})|rotateX(${1:angle})|rotateY(${1:angle})|rotateZ(${1:angle})|translate(${1:x}, ${2:y})|translateX(${1:x})|translateY(${1:y})|translateZ(${1:z})|translate3d(${1:tx}, ${2:ty}, ${3:tz})"
 });
 
 function expand(abbr) {
@@ -85,6 +86,8 @@ describe('CSS resolver', () => {
         assert.equal(expand('bd0-s#fc0'), 'border: 0 solid #ffcc00;');
         assert.equal(expand('bd0-dd#fc0'), 'border: 0 dot-dash #ffcc00;');
         assert.equal(expand('bd0-h#fc0'), 'border: 0 hidden #ffcc00;');
+
+        assert.equal(expand('trf-trs'), 'transform: translate(${1:x}, ${2:y});');
 	});
 
     it('numeric', () => {
