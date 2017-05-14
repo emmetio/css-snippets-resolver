@@ -24,10 +24,16 @@ const unitAliases = {
  */
 
 export default function(tree, registry) {
-	const snippets = cssSnippets(registry.all({type: 'string'}));
+	const snippets = convertToCSSSnippets(registry);
 	tree.walk(node => resolveNode(node, snippets));
 	return tree;
 }
+
+export function convertToCSSSnippets(registry) {
+    return cssSnippets(registry.all({type: 'string'}))
+}
+
+export { stringScore, cssSnippets }
 
 /**
  * Resolves given node: finds matched CSS snippets using fuzzy match and resolves
