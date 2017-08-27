@@ -32,8 +32,8 @@ registry.add({
     "@kf": "@keyframes ${1:identifier} {\n\t${2}\n}",
 });
 
-function expand(abbr) {
-    return stringify(parse(abbr).use(resolve, registry));
+function expand(abbr, options) {
+    return stringify(parse(abbr).use(resolve, registry, options));
 }
 
 function stringify(tree) {
@@ -97,6 +97,26 @@ describe('CSS resolver', () => {
         assert.equal(expand('p.4'), 'padding: 0.4em;', '`em` for floats');
         assert.equal(expand('p10p'), 'padding: 10%;', 'unit alias');
         assert.equal(expand('z10'), 'z-index: 10;', 'Unitless property');
+        assert.equal(expand('p10r'), 'padding: 10rem;', 'unit alias');
+    });
+    
+    it('numeric with format options', () => {
+        let options = {
+            intUnit: 'pt',
+            floatUnit: 'vh',
+            unitAliases: {
+                e :'em',
+                p: '%',
+                x: 'ex',
+                r: ' / @rem'
+            }
+        }
+        assert.equal(expand('p0', options), 'padding: 0;', 'No unit for 0');
+        assert.equal(expand('p10', options), 'padding: 10pt;', '`pt` unit for integers');
+        assert.equal(expand('p.4', options), 'padding: 0.4vh;', '`vh` for floats');
+        assert.equal(expand('p10p', options), 'padding: 10%;', 'unit alias');
+        assert.equal(expand('z10', options), 'z-index: 10;', 'Unitless property');
+        assert.equal(expand('p10r', options), 'padding: 10 / @rem;', 'unit alias');
 	});
 
     it('important', () => {
