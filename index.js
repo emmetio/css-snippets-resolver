@@ -8,12 +8,17 @@ const unitlessProperties = [
     'z-index', 'line-height', 'opacity', 'font-weight', 'zoom',
     'flex', 'flex-grow', 'flex-shrink'
 ];
-const unitAliases = {
-    e :'em',
-    p: '%',
-    x: 'ex',
-    r: 'rem'
-};
+
+const defaultFormat = {
+	intUnit: 'px',
+	floatUnit: 'em',
+	unitAliases: {
+		e :'em',
+		p: '%',
+		x: 'ex',
+		r: 'rem'
+	}
+}
 
 /**
  * For every node in given `tree`, finds matching snippet from `registry` and
@@ -23,9 +28,14 @@ const unitAliases = {
  * keyword values.
  */
 
-export default function(tree, registry) {
+export default function(tree, registry, formatOptions) {
 	const snippets = convertToCSSSnippets(registry);
-	tree.walk(node => resolveNode(node, snippets));
+	formatOptions = {
+		intUnit: (formatOptions && formatOptions.intUnit) || defaultFormat.intUnit,
+		floatUnit: (formatOptions && formatOptions.floatUnit) || defaultFormat.floatUnit,
+		unitAliases: Object.assign({}, defaultFormat.unitAliases, formatOptions && formatOptions.unitAliases)
+	}
+	tree.walk(node => resolveNode(node, snippets, formatOptions));
 	return tree;
 }
 
@@ -40,9 +50,10 @@ export { stringScore, cssSnippets }
  * keyword aliases from node value
  * @param  {Node} node
  * @param  {CSSSnippet[]} snippets
+ * @param  {Object} formatOptions
  * @return {Node}
  */
-function resolveNode(node, snippets) {
+function resolveNode(node, snippets, formatOptions) {
 	const snippet = findBestMatch(node.name, snippets, 'key');
 
 	if (!snippet) {
@@ -51,7 +62,7 @@ function resolveNode(node, snippets) {
 	}
 
 	return snippet.property
-		? resolveAsProperty(node, snippet)
+		? resolveAsProperty(node, snippet, formatOptions)
 		: resolveAsSnippet(node, snippet);
 }
 
@@ -59,9 +70,10 @@ function resolveNode(node, snippets) {
  * Resolves given parsed abbreviation node as CSS propery
  * @param {Node} node
  * @param {CSSSnippet} snippet
+ * @param  {Object} formatOptions
  * @return {Node}
  */
-function resolveAsProperty(node, snippet) {
+function resolveAsProperty(node, snippet, formatOptions) {
     const abbr = node.name;
 	node.name = snippet.property;
 
@@ -98,7 +110,7 @@ function resolveAsProperty(node, snippet) {
 						|| findBestMatch(token.value, globalKeywords)
 						|| token;
 				} else if (isNumericValue(token)) {
-                    token = resolveNumericValue(node.name, token);
+                    token = resolveNumericValue(node.name, token, formatOptions);
                 }
 
                 node.value.value[i] = token;
@@ -217,15 +229,16 @@ function tokenTypeOf(token, type) {
  * Resolves numeric value for given CSS property
  * @param  {String} property    CSS property name
  * @param  {NumericValue} token CSS numeric value token
+ * @param  {Object} formatOptions Formatting options for units
  * @return {NumericValue}
  */
-function resolveNumericValue(property, token) {
+function resolveNumericValue(property, token, formatOptions) {
     if (token.unit) {
-        token.unit = unitAliases[token.unit] || token.unit;
+        token.unit = formatOptions.unitAliases[token.unit] || token.unit;
     } else if (token.value !== 0 && unitlessProperties.indexOf(property) === -1) {
         // use `px` for integers, `em` for floats
         // NB: num|0 is a quick alternative to Math.round(0)
-        token.unit = token.value === (token.value|0) ? 'px' : 'em';
+        token.unit = token.value === (token.value|0) ? formatOptions.intUnit : formatOptions.floatUnit;
     }
 
     return token;
