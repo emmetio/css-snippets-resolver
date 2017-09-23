@@ -9,7 +9,7 @@ const unitlessProperties = [
     'flex', 'flex-grow', 'flex-shrink'
 ];
 
-const defaultFormat = {
+const defaultOptions = {
 	intUnit: 'px',
 	floatUnit: 'em',
 	unitAliases: {
@@ -17,7 +17,8 @@ const defaultFormat = {
 		p: '%',
 		x: 'ex',
 		r: 'rem'
-	}
+	},
+	fuzzySearchMinScore: 0
 }
 
 /**
@@ -28,14 +29,15 @@ const defaultFormat = {
  * keyword values.
  */
 
-export default function(tree, registry, formatOptions) {
+export default function(tree, registry, options) {
 	const snippets = convertToCSSSnippets(registry);
-	formatOptions = {
-		intUnit: (formatOptions && formatOptions.intUnit) || defaultFormat.intUnit,
-		floatUnit: (formatOptions && formatOptions.floatUnit) || defaultFormat.floatUnit,
-		unitAliases: Object.assign({}, defaultFormat.unitAliases, formatOptions && formatOptions.unitAliases)
+	options = {
+		intUnit: (options && options.intUnit) || defaultOptions.intUnit,
+		floatUnit: (options && options.floatUnit) || defaultOptions.floatUnit,
+		unitAliases: Object.assign({}, defaultOptions.unitAliases, options && options.unitAliases),
+		fuzzySearchMinScore: (options && options.fuzzySearchMinScore) || defaultOptions.fuzzySearchMinScore
 	}
-	tree.walk(node => resolveNode(node, snippets, formatOptions));
+	tree.walk(node => resolveNode(node, snippets, options));
 	return tree;
 }
 
@@ -50,11 +52,11 @@ export { stringScore, cssSnippets }
  * keyword aliases from node value
  * @param  {Node} node
  * @param  {CSSSnippet[]} snippets
- * @param  {Object} formatOptions
+ * @param  {Object} options
  * @return {Node}
  */
-function resolveNode(node, snippets, formatOptions) {
-	const snippet = findBestMatch(node.name, snippets, 'key');
+function resolveNode(node, snippets, options) {
+	const snippet = findBestMatch(node.name, snippets, 'key', options.fuzzySearchMinScore);
 
 	if (!snippet) {
 		// Edge case: `!important` snippet
@@ -62,7 +64,7 @@ function resolveNode(node, snippets, formatOptions) {
 	}
 
 	return snippet.property
-		? resolveAsProperty(node, snippet, formatOptions)
+		? resolveAsProperty(node, snippet, options)
 		: resolveAsSnippet(node, snippet);
 }
 
@@ -149,15 +151,17 @@ function setNodeAsText(node, text) {
  * @param {Array}  items List of items for match
  * @param {String} [key] If `items` is a list of objects, use `key` as object
  * property to test against
+ * @param {Number} fuzzySearchMinScore The minimum score the best matched item should have to be a valid match.
  * @return {*}
  */
-function findBestMatch(abbr, items, key) {
+function findBestMatch(abbr, items, key, fuzzySearchMinScore) {
 	if (!abbr) {
 		return null;
 	}
 
 	let matchedItem = null;
 	let maxScore = 0;
+	fuzzySearchMinScore = fuzzySearchMinScore || 0;
 
 	for (let i = 0, item; i < items.length; i++) {
 		item = items[i];
@@ -174,7 +178,7 @@ function findBestMatch(abbr, items, key) {
 		}
 	}
 
-	return matchedItem;
+	return maxScore >= fuzzySearchMinScore ? matchedItem : null;
 }
 
 function getScoringPart(item, key) {

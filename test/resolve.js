@@ -9,6 +9,7 @@ const stringScore = require('../lib/score').default;
 
 const registry = new SnippetsRegistry();
 registry.add({
+    "as": "align-self:auto|flex-start|flex-end|center|baseline|stretch",
     "bg": "background:#${1:000}",
     "bga": "background-attachment:fixed|scroll",
     "bgbk": "background-break:bounding-box|each-box|continuous",
@@ -29,7 +30,7 @@ registry.add({
     "fl": "float:left|right|none",
     "fef": "font-effect:none|engrave|emboss|outline",
     "trf": "transform:${1}|skewX(${1:angle})|skewY(${1:angle})|scale(${1:x}, ${2:y})|scaleX(${1:x})|scaleY(${1:y})|scaleZ(${1:z})|scale3d(${1:x}, ${2:y}, ${3:z})|rotate(${1:angle})|rotateX(${1:angle})|rotateY(${1:angle})|rotateZ(${1:angle})|translate(${1:x}, ${2:y})|translateX(${1:x})|translateY(${1:y})|translateZ(${1:z})|translate3d(${1:tx}, ${2:ty}, ${3:tz})",
-    "@kf": "@keyframes ${1:identifier} {\n\t${2}\n}",
+    "@kf": "@keyframes ${1:identifier} {\n\t${2}\n}"
 });
 
 function expand(abbr, options) {
@@ -131,5 +132,10 @@ describe('CSS resolver', () => {
 
     it('case insensitive matches', () => {
         assert.equal(expand('trf:rx'), 'transform: rotateX(${1:angle});');
-    })
+    });
+
+    it('should use minscore when finding best match for snippets', () => {
+        assert.equal(expand('auto', {fuzzySearchMinScore: 0}), 'align-self: ${1:auto};');
+        assert.equal(expand('auto', {fuzzySearchMinScore: 0.3}), 'auto;');
+    });
 });
