@@ -128,4 +128,8 @@ describe('CSS resolver', () => {
     it('snippets', () => {
         assert.equal(expand('@k'), '@keyframes ${1:identifier} {\n\t${2}\n}');
     });
+
+    it('case insensitive matches', () => {
+        assert.equal(expand('trf:rx'), 'transform: rotateX(${1:angle});');
+    })
 });
