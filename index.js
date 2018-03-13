@@ -30,13 +30,11 @@ const defaultOptions = {
  */
 
 export default function(tree, registry, options) {
+	options = Object.assign({}, defaultOptions, options);
+	options.unitAliases = Object.assign({}, defaultOptions.unitAliases, options && options.unitAliases);
+
 	const snippets = convertToCSSSnippets(registry);
-	options = {
-		intUnit: (options && options.intUnit) || defaultOptions.intUnit,
-		floatUnit: (options && options.floatUnit) || defaultOptions.floatUnit,
-		unitAliases: Object.assign({}, defaultOptions.unitAliases, options && options.unitAliases),
-		fuzzySearchMinScore: (options && options.fuzzySearchMinScore) || defaultOptions.fuzzySearchMinScore
-	}
+
 	tree.walk(node => resolveNode(node, snippets, options));
 	return tree;
 }
