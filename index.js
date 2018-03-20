@@ -67,7 +67,7 @@ function resolveNode(node, snippets, options) {
 }
 
 /**
- * Resolves given parsed abbreviation node as CSS propery
+ * Resolves given parsed abbreviation node as CSS property
  * @param {Node} node
  * @param {CSSSnippet} snippet
  * @param  {Object} formatOptions
@@ -87,7 +87,7 @@ function resolveAsProperty(node, snippet, formatOptions) {
 
             if (!kw) {
                 // no matching value, try to get default one
-                kw = snippet.defaulValue;
+                kw = snippet.defaultValue;
                 if (kw && kw.indexOf('${') === -1) {
                     // Quick and dirty test for existing field. If not, wrap
                     // default value in a field
