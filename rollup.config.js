@@ -1,8 +1,13 @@
 export default {
-	entry: './index.js',
-	exports: 'named',
-	targets: [
-		{format: 'cjs', dest: 'dist/css-snippets-resolver.cjs.js'},
-		{format: 'es',  dest: 'dist/css-snippets-resolver.es.js'}
-	]
+	input: './index.js',
+	output: [{
+		format: 'cjs',
+		exports: 'named',
+		sourcemap: true,
+		file: 'dist/css-snippets-resolver.cjs.js'
+	}, {
+		format: 'es',
+		sourcemap: true,
+		file: 'dist/css-snippets-resolver.es.js'
+	}]
 };
