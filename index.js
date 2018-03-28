@@ -54,6 +54,11 @@ export { stringScore, cssSnippets };
  * @return {Node}
  */
 function resolveNode(node, snippets, options) {
+	if (options.property) {
+		// Resolve as value of given CSS property
+		return resolveAsPropertyValue(node, snippets.find(snippet => snippet.property === options.property), options);
+	}
+
 	const snippet = findBestMatch(node.name, snippets, 'key', options.fuzzySearchMinScore);
 
 	if (!snippet) {
@@ -129,6 +134,41 @@ function resolveAsProperty(node, snippet, formatOptions) {
  */
 function resolveAsSnippet(node, snippet) {
 	return setNodeAsText(node, snippet.value);
+}
+
+/**
+ * Resolves given parsed abbreviation node as property value of given `snippet`:
+ * tries to find best matching keyword from CSS snippet
+ * @param {Node} node
+ * @param {CSSSnippet} snippet
+ * @param {Object} options
+ * @return {Node}
+ */
+function resolveAsPropertyValue(node, snippet, options) {
+	// Possible resolved result for CSS property:
+	// * matched snippet keyword
+	// * color (starts with #)
+	// Everything else should result the same as input abbreviation
+	let keywords = globalKeywords.slice();
+	if (snippet) {
+		keywords = keywords.concat(snippet.keywords());
+	}
+
+	const values = [node.name].concat(node.value.value)
+		.filter(Boolean)
+		.map(value => {
+			if (typeof value === 'string' || value.type === 'keyword') {
+				value = String(value);
+				return findBestMatch(value, keywords, null, options.fuzzySearchMinScore) || value;
+			}
+
+			return value;
+		});
+
+	node.name = null;
+	node.value.value = values;
+
+	return node;
 }
 
 /**

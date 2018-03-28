@@ -32,7 +32,7 @@ registry.add({
 });
 
 function expand(abbr, options) {
-	return stringify(parse(abbr).use(resolve, registry, options));
+	return stringify(parse(abbr).use(resolve, registry, options), options);
 }
 
 function stringify(tree) {
@@ -133,7 +133,14 @@ describe('CSS resolver', () => {
 	});
 
 	it('should use minscore when finding best match for snippets', () => {
-		assert.equal(expand('auto', {fuzzySearchMinScore: 0}), 'align-self: ${1:auto};');
-		assert.equal(expand('auto', {fuzzySearchMinScore: 0.3}), 'auto;');
+		assert.equal(expand('auto', { fuzzySearchMinScore: 0 }), 'align-self: ${1:auto};');
+		assert.equal(expand('auto', { fuzzySearchMinScore: 0.3 }), 'auto;');
+	});
+
+	it('property value', () => {
+		assert.equal(expand('s(2)', { property: 'transform' }), 'scale(${1:x}, ${2:y})');
+		assert.equal(expand('scx', { property: 'transform' }), 'scaleX(${1:x})');
+		assert.equal(expand('a', { property: 'margin' }), 'auto');
+		assert.equal(expand('a-u', { property: 'margin' }), 'auto unset');
 	});
 });
