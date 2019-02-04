@@ -203,7 +203,7 @@ function findBestMatch(abbr, items, key, fuzzySearchMinScore) {
 
 	for (let i = 0, item; i < items.length; i++) {
 		item = items[i];
-		const score = stringScore(abbr, getScoringPart(item, key));
+		const score = stringScore(abbr, getScoringPart(item, key), (getScoringPart(item, "property") !== null )  ? getScoringPart(item, "property") : getScoringPart(item, "defaultValue"));
 
 		if (score === 1) {
 			// direct hit, no need to look further
